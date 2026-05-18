@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biological Age Pre-Assessment | PRYSM iO</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-color: #f5f5f7;
+            --surface-color: #ffffff;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --accent-color: #0071e3;
+            --accent-hover: #0077ED;
+            --border-color: #d2d2d7;
+            
+            /* Status Colors */
+            --color-green: #34c759;
+            --color-yellow: #ffcc00;
+            --color-orange: #ff9500;
+            --color-red: #ff3b30;
+            
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-color: #000000;
+            --surface-color: #1c1c1e;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --accent-color: #2997ff;
+            --accent-hover: #147ce6;
+            --border-color: #38383a;
+        }
+
+        /* Language Toggle Visibility Rules */
+        html[data-lang="en"] .th { display: none !important; }
+        html[data-lang="th"] .en { display: none !important; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Header & Actions */
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-color), #409cff);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        /* Toggle Buttons styling */
+        .control-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .lang-toggle-group {
+            display: flex;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 0.35rem 0.75rem;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .lang-btn.active {
+            background: var(--accent-color);
+            color: #ffffff;
+        }
+
+        /* Sections and Cards */
+        .section {
+            background-color: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s forwards;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Grid for cards */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .selectable-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            background-color: var(--bg-color);
+            user-select: none;
+        }
+
+        .selectable-card:hover {
+            border-color: var(--accent-color);
+        }
+
+        .selectable-card.selected {
+            background-color: var(--accent-color);
+            color: white !important;
+            border-color: var(--accent-color);
+        }
+
+        /* Sliders */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: var(--border-color);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slider-value {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            margin-top: 1rem;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* BMI Display */
+        #bmi-display {
+            font-weight: 600;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Loading Animation */
+        #loading-screen {
+            display: none;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem auto;
+        }
+
+        /* Results Dashboard */
+        #result-section {
+            display: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .score-card {
+            background-color: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+        
+        .score-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .insights-list {
+            list-style: none;
+            text-align: left;
+        }
+
+        .insights-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .insights-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Utilities & Animations */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .grid-cards { grid-template-columns: 1fr 1fr; }
+            .header-controls { position: relative; justify-content: center; margin-top: 1rem; top: unset; right: unset; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-controls">
+            <div class="lang-toggle-group">
+                <button class="lang-btn active" data-lang="en" onclick="switchLanguage('en')">EN</button>
+                <button class="lang-btn" data-lang="th" onclick="switchLanguage('th')">TH</button>
+            </div>
+            <button class="control-btn" id="theme-btn" aria-label="Toggle Dark Mode">🌙</button>
+        </div>
+        <div class="logo-text">PRYSM iO</div>
+        <div class="subtitle">
+            <span class="en">Biological Age Pre-Assessment</span>
+            <span class="th">แบบประเมินอายุชีวภาพเบื้องต้น</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </header>
+
+    <!-- FORM SECTION -->
+    <form id="assessment-form">
+        
+        <!-- SECTION 1: Personal Info -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="en">1. Personal Information</span>
+                <span class="th">1. ข้อมูลส่วนตัว</span>
+            </h2>
+            
+            <div class="form-group">
+                <label><span class="en">Date</span><span class="th">วันที่</span></label>
+                <input type="date" id="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label><span class="en">Name</span><span class="th">ชื่อ</span></label>
+                <input type="text" id="name" data-en-placeholder="John Doe" data-th-placeholder="สมชาย ดีใจ" placeholder="John Doe" required>
+            </div>
+            
+            <div class="form-group">
+                <label><span class="en">Age</span><span class="th">อายุ</span></label>
+                <input type="number" id="age" min="15" max="100" required>
+            </div>
+            
+            <div class="form-group">
+                <label><span class="en">Sex</span><span class="th">เพศ</span></label>
+                <div class="grid-cards">
+                    <div class="selectable-card single-select group-sex" data-value="Male">
+                        <span class="en">Male</span><span class="th">ชาย</span>
+                    </div>
+                    <div class="selectable-card single-select group-sex" data-value="Female">
+                        <span class="en">Female</span><span class="th">หญิง</span>
+                    </div>
+                </div>
+                <input type="hidden" id="sex" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label><span class="en">Height (cm)</span><span class="th">ส่วนสูง (ซม.)</span></label>
+                    <input type="number" id="height" required>
+                </div>
+                <div class="form-group">
+                    <label><span class="en">Weight (kg)</span><span class="th">น้ำหนัก (กก.)</span></label>
+                    <input type="number" id="weight" required>
+                </div>
+            </div>
+            <div id="bmi-display">BMI: --</div>
+        </div>
+
+        <!-- SECTION 2: Health Problems -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="en">2. Current Health Problems</span>
+                <span class="th">2. ปัญหาสุขภาพปัจจุบัน</span>
+            </h2>
+            <div class="grid-cards" id="health-problems-grid">
+                <div class="selectable-card multi-select" data-value="bp"><span class="en">High blood pressure</span><span class="th">ความดันโลหิตสูง</span></div>
+                <div class="selectable-card multi-select" data-value="diabetes"><span class="en">Diabetes</span><span class="th">เบาหวาน</span></div>
+                <div class="selectable-card multi-select" data-value="cholesterol"><span class="en">High cholesterol</span><span class="th">ไขมันในเลือดสูง</span></div>
+                <div class="selectable-card multi-select" data-value="overweight"><span class="en">Overweight</span><span class="th">น้ำหนักเกิน</span></div>
+                <div class="selectable-card multi-select" data-value="sleep"><span class="en">Poor sleep</span><span class="th">นอนหลับไม่ดี</span></div>
+                <div class="selectable-card multi-select" data-value="stress"><span class="en">Stress</span><span class="th">ความเครียด</span></div>
+                <div class="selectable-card multi-select" data-value="energy"><span class="en">Low energy</span><span class="th">อ่อนเพลียเรื้อรัง</span></div>
+                <div class="selectable-card multi-select" data-value="digestion"><span class="en">Digestive problems</span><span class="th">ระบบย่อยอาหาร</span></div>
+                <div class="selectable-card multi-select" data-value="joints"><span class="en">Joint pain</span><span class="th">ปวดข้อปวดกระดูก</span></div>
+                <div class="selectable-card multi-select" data-value="none" id="prob-none"><span class="en">None</span><span class="th">ไม่มีโรคประจำตัว</span></div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Health Goals -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="en">3. Main Health Goals</span>
+                <span class="th">3. เป้าหมายสุขภาพหลัก</span>
+            </h2>
+            <div class="grid-cards">
+                <div class="selectable-card multi-select" data-value="g_weight"><span class="en">Lose weight</span><span class="th">ลดน้ำหนัก</span></div>
+                <div class="selectable-card multi-select" data-value="g_belly"><span class="en">Reduce belly fat</span><span class="th">ลดหน้าท้อง / พุง</span></div>
+                <div class="selectable-card multi-select" data-value="g_energy"><span class="en">Increase energy</span><span class="th">เพิ่มพลังงานความสดชื่น</span></div>
+                <div class="selectable-card multi-select" data-value="g_sleep"><span class="en">Better sleep</span><span class="th">นอนหลับดีขึ้น</span></div>
+                <div class="selectable-card multi-select" data-value="g_antiaging"><span class="en">Anti-aging</span><span class="th">ชะลอวัยย้อนวัย</span></div>
+                <div class="selectable-card multi-select" data-value="g_fitness"><span class="en">Improve fitness</span><span class="th">ฟิตร่างกาย</span></div>
+                <div class="selectable-card multi-select" data-value="g_muscle"><span class="en">Build muscle</span><span class="th">เพิ่มมวลกล้ามเนื้อ</span></div>
+                <div class="selectable-card multi-select" data-value="g_stress"><span class="en">Reduce stress</span><span class="th">ลดความเครียด</span></div>
+                <div class="selectable-card multi-select" data-value="g_metabolic"><span class="en">Better metabolic health</span><span class="th">ระบบเผาผลาญดีขึ้น</span></div>
+                <div class="selectable-card multi-select" data-value="g_skin"><span class="en">Better skin</span><span class="th">บำรุงผิวพรรณ</span></div>
+                <div class="selectable-card multi-select" data-value="g_sports"><span class="en">Sports performance</span><span class="th">เพิ่มประสิทธิภาพการกีฬา</span></div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Bio Age Questions -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="en">4. Lifestyle & Biological Age Indicators</span>
+                <span class="th">4. พฤติกรรมและตัวชี้วัดอายุชีวภาพ</span>
+            </h2>
+            
+            <!-- Sleep & Recovery -->
+            <h3 style="margin: 1.5rem 0 1rem;">
+                <span class="en">Sleep & Recovery</span><span class="th">การนอนหลับและการฟื้นฟู</span>
+            </h3>
+            
+            <div class="form-group">
+                <label>
+                    <span class="en">Sleep quality (0 = Very Poor, 10 = Excellent)</span>
+                    <span class="th">คุณภาพการนอนหลับ (0 = แย่มาก, 10 = ดีเยี่ยม)</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="q_sleep_qual" min="0" max="10" value="5">
+                    <span class="slider-value" id="val_sleep_qual">5</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <span class="en">Sleep hours</span><span class="th">ชั่วโมงการนอนโดยเฉลี่ย</span>
+                </label>
+                <select id="q_sleep_hrs" required>
+                    <option value="" disabled selected class="en">Select...</option>
+                    <option value="" disabled selected class="th">เลือก...</option>
+                    <option value="4" class="en">Less than 5 hours</option>
+                    <option value="4" class="th">น้อยกว่า 5 ชั่วโมง</option>
+                    <option value="5.5" class="en">5–6 hours</option>
+                    <option value="5.5" class="th">5–6 ชั่วโมง</option>
+                    <option value="6.5" class="en">6–7 hours</option>
+                    <option value="6.5" class="th">6–7 ชั่วโมง</option>
+                    <option value="7.5" class="en">7–8 hours</option>
+                    <option value="7.5" class="th">7–8 ชั่วโมง</option>
+                    <option value="9" class="en">More than 8 hours</option>
+                    <option value="9" class="th">มากกว่า 8 ชั่วโมง</option>
+                </select>
+            </div>
+
+            <!-- Energy & Stress -->
+            <h3 style="margin: 1.5rem 0 1rem;">
+                <span class="en">Energy & Stress</span><span class="th">ระดับพลังงานและความเครียด</span>
+            </h3>
+            
+            <div class="form-group">
+                <label>
+                    <span class="en">Daily energy level (0 = Exhausted, 10 = Energetic)</span>
+                    <span class="th">ระดับพลังงานระหว่างวัน (0 = อ่อนเพลียมาก, 10 = กระปรี้กระเปร่า)</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="q_energy" min="0" max="10" value="5">
+                    <span class="slider-value" id="val_energy">5</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <span class="en">Stress level (0 = Calm, 10 = Extremely stressed)</span>
+                    <span class="th">ระดับความเครียดสะสม (0 = สงบผ่อนคลาย, 10 = เครียดขั้นรุนแรง)</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="q_stress" min="0" max="10" value="5">
+                    <span class="slider-value" id="val_stress">5</span>
+                </div>
+            </div>
+
+            <!-- Movement -->
+            <h3 style="margin: 1.5rem 0 1rem;">
+                <span class="en">Movement & Fitness</span><span class="th">การเคลื่อนไหวและการออกกำลังกาย</span>
+            </h3>
+            
+            <div class="form-group">
+                <label>
+                    <span class="en">Exercise frequency</span><span class="th">ความถี่ในการออกกำลังกาย</span>
+                </label>
+                <select id="q_exercise" required>
+                    <option value="" disabled selected class="en">Select...</option>
+                    <option value="" disabled selected class="th">เลือก...</option>
+                    <option value="0" class="en">0 days</option>
+                    <option value="0" class="th">ไม่ออกกำลังกายเลย</option>
+                    <option value="1.5" class="en">1–2 days/week</option>
+                    <option value="1.5" class="th">1–2 วันต่อสัปดาห์</option>
+                    <option value="3.5" class="en">3–4 days/week</option>
+                    <option value="3.5" class="th">3–4 วันต่อสัปดาห์</option>
+                    <option value="5" class="en">5+ days/week</option>
+                    <option value="5" class="th">5 วันขึ้นไปต่อสัปดาห์</option>
+                </select>
+            </div>
+
+            <!-- Nutrition -->
+            <h3 style="margin: 1.5rem 0 1rem;">
+                <span class="en">Nutrition & Metabolism</span><span class="th">โภชนาการและระบบเผาผลาญ</span>
+            </h3>
+            
+            <div class="form-group">
+                <label>
+                    <span class="en">Eating habits quality (0 = Very unhealthy, 10 = Very healthy)</span>
+                    <span class="th">คุณภาพการรับประทานอาหาร (0 = ขยะ/แปรรูปสูง, 10 = ดีต่อสุขภาพมาก)</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="q_food_qual" min="0" max="10" value="5">
+                    <span class="slider-value" id="val_food_qual">5</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <span class="en">Daily water intake</span><span class="th">ปริมาณการดื่มน้ำบริสุทธิ์ต่อวัน</span>
+                </label>
+                <select id="q_water" required>
+                    <option value="" disabled selected class="en">Select...</option>
+                    <option value="" disabled selected class="th">เลือก...</option>
+                    <option value="0.5" class="en">Less than 1L</option>
+                    <option value="0.5" class="th">น้อยกว่า 1 ลิตร</option>
+                    <option value="1.5" class="en">1–2L</option>
+                    <option value="1.5" class="th">1–2 ลิตร</option>
+                    <option value="2.5" class="en">2–3L</option>
+                    <option value="2.5" class="th">2–3 ลิตร</option>
+                    <option value="3.5" class="en">More than 3L</option>
+                    <option value="3.5" class="th">มากกว่า 3 ลิตร</option>
+                </select>
+            </div>
+
+            <!-- Final Questions -->
+            <h3 style="margin: 1.5rem 0 1rem;">
+                <span class="en">Longevity & Vitals</span><span class="th">ข้อมูลสุขภาพและอายุความรู้สึก</span>
+            </h3>
+            
+            <div class="form-group">
+                <label><span class="en">Smoking?</span><span class="th">คุณสูบบุหรี่หรือไม่?</span></label>
+                <div class="grid-cards">
+                    <div class="selectable-card single-select group-smoke" data-value="Yes">
+                        <span class="en">Yes</span><span class="th">ใช่ (สูบ)</span>
+                    </div>
+                    <div class="selectable-card single-select group-smoke" data-value="No">
+                        <span class="en">No</span><span class="th">ไม่ (ไม่สูบ)</span>
+                    </div>
+                </div>
+                <input type="hidden" id="q_smoke" required>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <span class="en">Compared to your real age, how old do you physically feel?</span>
+                    <span class="th">หากเทียบกับอายุจริง คุณรู้สึกว่าสุขภาพร่างกายคุณแก่หรือเด็กกว่าวัย?</span>
+                </label>
+                <select id="q_feel_age" required>
+                    <option value="" disabled selected class="en">Select...</option>
+                    <option value="" disabled selected class="th">เลือก...</option>
+                    <option value="younger" class="en">Younger / Feels lighter than actual age</option>
+                    <option value="younger" class="th">เด็กกว่าอายุจริง / ร่างกายคล่องตัวกว่าวัย</option>
+                    <option value="same" class="en">Same / Matches regular age</option>
+                    <option value="same" class="th">เท่ากับอายุจริง</option>
+                    <option value="older" class="en">Older / Gets exhausted and feels fragile</option>
+                    <option value="older" class="th">แก่กว่าอายุจริง / ร่างกายทรุดโทรมเหนื่อยง่าย</option>
+                </select>
+            </div>
+
+        </div>
+
+        <button type="submit" class="btn" id="submit-btn">
+            <span class="en">Analyze Biological Age</span>
+            <span class="th">คำนวณอายุชีวภาพ</span>
+        </button>
+    </form>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <h2 style="margin-bottom: 0.5rem;">
+            <span class="en">PRYSM Engine Analyzing Matrix...</span>
+            <span class="th">ระบบ AI กำลังวิเคราะห์ข้อมูลโครงสร้างเซลล์...</span>
+        </h2>
+    </div>
+
+    <!-- RESULTS SECTION -->
+    <div id="result-section">
+        
+        <div class="dashboard-grid" id="capture-area">
+            
+            <!-- Main Bio Age Card -->
+            <div class="score-card full-width" style="background: linear-gradient(135deg, var(--surface-color), rgba(0, 113, 227, 0.05)); border: 1px solid var(--accent-color);">
+                <h3 style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">
+                    <span class="en">Estimated Biological Age</span>
+                    <span class="th">ผลประเมินอายุชีวภาพ (Biological Age)</span>
+                </h3>
+                <div class="score-value" id="res-bio-age" style="color: var(--accent-color);">--</div>
+                <p id="res-chron-age"></p>
+                <div style="margin-top: 1rem; font-weight: 500;" id="res-conclusion"></div>
+            </div>
+
+            <!-- Health Risk Level -->
+            <div class="score-card">
+                <h3>
+                    <span class="en">Health Risk Assessment</span>
+                    <span class="th">ระดับความเสี่ยงสุขภาพโดยรวม</span>
+                </h3>
+                <div class="score-value" id="res-risk" style="font-size: 2rem;">--</div>
+                <div style="height: 6px; border-radius: 3px; background: #eee; margin-top: 1rem; overflow: hidden;">
+                    <div id="risk-bar" style="height: 100%; width: 0%; transition: width 1s;"></div>
+                </div>
+            </div>
+
+            <!-- Longevity Score Chart -->
+            <div class="score-card">
+                <h3>
+                    <span class="en">Longevity Index</span>
+                    <span class="th">ดัชนีชะลอวัย (Longevity Score)</span>
+                </h3>
+                <div class="chart-container">
+                    <canvas id="longevityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Radar Chart (Pillars) -->
+            <div class="score-card full-width">
+                <h3>
+                    <span class="en">Biomarker Wellness Pillars</span>
+                    <span class="th">เสาหลักความสมบูรณ์ของร่างกาย</span>
+                </h3>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="pillarsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="score-card full-width">
+                <h3 style="margin-bottom: 1rem;">
+                    <span class="en">Targeted Anti-Aging Clinical Protocols</span>
+                    <span class="th">คำแนะนำและมาตรการการรักษาระดับคลินิกย้อนวัย</span>
+                </h3>
+                <ul class="insights-list" id="recommendations-list">
+                    <!-- Injected via JS -->
+                </ul>
+            </div>
+        </div>
+
+        <button class="btn" onclick="exportPDF()">
+            <span class="en">Export Personalized Bio-Report (PDF)</span>
+            <span class="th">ส่งออกรายงานผลสุขภาพฉบับเต็ม (PDF)</span>
+        </button>
+        <button class="btn btn-outline" onclick="location.reload()">
+            <span class="en">Restart Clinical Assessment</span>
+            <span class="th">ทำแบบประเมินใหม่อีกครั้ง</span>
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // System Translations for JS generated strings
+    const i18n = {
+        en: {
+            chronological: "Chronological Age: ",
+            younger: "years younger",
+            older: "years older",
+            match: "Your biological age perfectly matches your chronological age.",
+            congrats: "🎉 Outstanding! Your cellular biomarkers reveal you are functioning",
+            warn: "⚠️ Attention Required: Your physical rate of cellular degeneration shows you are tracking",
+            bmiUnder: "Underweight", bmiNorm: "Normal", bmiOver: "Overweight", bmiObese: "Obese",
+            riskExc: "Excellent", riskGood: "Good", riskMod: "Moderate Risk", riskHigh: "High Risk",
+            p1: "Metabolic Pathway", p2: "Cellular Recovery", p3: "Stress Resistance", p4: "Mitochondrial Energy", p5: "Longevity Framework",
+            alertCards: "Please choose options for Sex and Smoking selections before running analysis.",
+            rec1: "💤 Systematically restructure your sleep profile to extend deep/REM cycles. Eliminate blue-spectrum radiation 2 hours pre-bedtime.",
+            rec2: "🧘‍♀️ Your autonomic markers register chronic sympathetic drive. Integrate biofeedback mechanisms or breathwork to safely depress cortisol spikes.",
+            rec3: "🏃‍♂️ Cellular systems indicate physical detraining. Implement high-intensity interval metrics layered over systematic progressive structural resistance training.",
+            rec4: "⚖️ Elevated lipid/adipose metrics detected. Establish nutritional patterns emphasizing glycemic index dampening and a clean caloric balance.",
+            rec5: "🥗 High intake of oxidative/processed inputs. Shift diet toward dense polyphenol matrix arrays, lean organic elements, and high trace fibers.",
+            rec6: "💧 Deep intracellular dehydration. Elevate daily structured water standard tracking to 2.5–3.5 Liters containing electrolyte essential elements.",
+            rec7: "🚭 Tobacco consumption significantly increases DNA telomere decay. Engage targeted specialist therapies to end continuous systematic mutation pathways.",
+            rec8: "⭐ Perfect optimization balance discovered. Continue your customized longevity maintenance system to maximize healthspan index limits."
+        },
+        th: {
+            chronological: "อายุจริงตามปฏิทิน: ",
+            younger: "ปี (อายุน้อยกว่าวัยจริง)",
+            older: "ปี (อายุร่างกายแก่กว่าวัยจริง)",
+            match: "สภาวะอายุชีวภาพของคุณทำงานสมดุลตรงตามเกณฑ์อายุจริงปกติ",
+            congrats: "🎉 ยอดเยี่ยมมาก! ดัชนีตัวชี้วัดในเซลล์ของคุณสะสมความสมบูรณ์แข็งแรงส่งผลให้ระบบภายในของคุณเด็กกว่าอายุจริงถึง ",
+            warn: "⚠️ ควรเฝ้าระวัง: อัตราการเสื่อมสภาพของเซลล์และอวัยวะภายในของคุณส่งผลให้ระบบภายในทำงานล้าหลังและแก่กว่าอายุจริงถึง ",
+            bmiUnder: "น้ำหนักน้อยกว่าเกณฑ์", bmiNorm: "สมส่วน/ปกติ", bmiOver: "น้ำหนักเกินเกณฑ์", bmiObese: "สภาวะอ้วนภัยเงียบ",
+            riskExc: "สมบูรณ์แบบดีเยี่ยม", riskGood: "สุขภาพเกณฑ์ดี", riskMod: "ความเสี่ยงปานกลาง", riskHigh: "ความเสี่ยงสูงระดับอันตราย",
+            p1: "ระบบเผาผลาญอาหาร", p2: "การฟื้นฟูซ่อมแซมเซลล์", p3: "การต้านทานความเครียด", p4: "พลังงานระดับไมโตคอนเดรีย", p5: "กรอบดัชนีอายุยืนยาว",
+            alertCards: "กรุณาคลิกเลือกข้อมูลการ์ด เพศ และ ประวัติการสูบบุหรี่ ให้ครบถ้วนก่อนทำการประมวลผล",
+            rec1: "💤 ปรับโครงสร้างสุขอนามัยการนอนหลับ เพิ่มสัดส่วน Deep/REM sleep งดเว้นคลื่นแสงสีฟ้าอย่างน้อย 2 ชั่วโมงก่อนนอนเพื่อเร่ง Growth Hormone",
+            rec2: "🧘‍♀️ ร่างกายของคุณแสดงระดับฮอร์โมนความเครียด (Cortisol) สะสมสูงเกินเกณฑ์ แนะนำให้ผ่อนคลายระบบประสาท Sympathetic ด้วยการฝึกทำสมาธิหรือทำลมหายใจเข้าออกอย่างเป็นระบบ",
+            rec3: "🏃‍♂️ ตัวชี้วัดระบบกล้ามเนื้อและหัวใจอยู่ในเกณฑ์ถดถอย แนะนำเพิ่มการออกกำลังกายแบบมีแรงต้าน (Weight Training) ร่วมกับ Cardio เพื่อคงสภาพความหนาแน่นกระดูกและมวลกล้ามเนื้อ",
+            rec4: "⚖️ ตรวจพบแนวโน้มไขมันช่องท้องสะสมสูง (Visceral Fat) ควรปรับสารอาหารเพื่อลดดัชนีมวลกายให้อยู่ในเกณฑ์ปลอดภัยเพื่อตัดความเสี่ยงระบบหลอดเลือดหัวใจ",
+            rec5: "🥗 ลดปริมาณอาหารแปรรูปและน้ำตาลสังเคราะห์ขั้นสูงอย่างเด็ดขาด เปลี่ยนมาเน้นโปรตีนสะอาด พืชผักเส้นใยสูง และสารต้านอนุมูลอิสระหลากสี",
+            rec6: "💧 เพิ่มการดื่มน้ำสะอาดบริสุทธิ์เป็นวันละ 2.5 - 3.5 ลิตร เพื่อรักษาระดับความเข้มข้นของเลือดและช่วยให้การแลกเปลี่ยนสารอาหารในเยื่อหุ้มเซลล์ทำงานได้เต็มประสิทธิภาพ",
+            rec7: "🚭 การสูบบุหรี่สร้างสารอนุมูลอิสระทำลายรหัสพันธุกรรมและทำให้เทโลเมียร์สั้นลงอย่างรวดเร็ว แนะนำการเข้าโปรแกรมปรึกษาเพื่อลดละเลิกการรับสารพิษเข้าสู่ปอด",
+            rec8: "⭐ ปัจจุบันคุณรักษาสมดุลของร่างกายได้ยอดเยี่ยมมาก แนะนำให้คงมาตรฐานพฤติกรรมนี้ต่อไปเพื่อรักษาระดับขีดจำกัดความอ่อนเยาว์และอายุยืนยาว"
+        }
+    };
+
+    let currentLang = "en";
+    let storedScores = null;
+
+    // Set today's date automatically
+    document.getElementById('date').valueAsDate = new Date();
+
+    // Theme Toggle Controller
+    const themeBtn = document.getElementById('theme-btn');
+    themeBtn.addEventListener('click', () => {
+        const doc = document.documentElement;
+        if(doc.getAttribute('data-theme') === 'dark') {
+            doc.removeAttribute('data-theme');
+            themeBtn.innerText = '🌙';
+        } else {
+            doc.setAttribute('data-theme', 'dark');
+            themeBtn.innerText = '☀️';
+        }
+        if (storedScores) updateCharts(); // Repaint chart colors for text transparency
+    });
+
+    // Language Toggle Switcher Engine
+    function switchLanguage(lang) {
+        currentLang = lang;
+        document.documentElement.setAttribute('data-lang', lang);
+        
+        // Handle input placeholders mapping dynamically
+        document.querySelectorAll('[data-en-placeholder]').forEach(input => {
+            input.placeholder = input.getAttribute(`data-${lang}-placeholder`);
+        });
+
+        // Toggle active design styles on language control buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+
+        calculateBMI();
+        updateProgress();
+
+        // If results dashboard is active, re-execute the linguistic output layer
+        if(document.getElementById('result-section').style.display === 'block' && storedScores) {
+            repaintResultsUI();
+        }
+    }
+
+    // Live Event Listeners for Range Sliders dynamic data response
+    document.querySelectorAll('input[type="range"]').forEach(slider => {
+        slider.addEventListener('input', (e) => {
+            document.getElementById('val_' + e.target.id.replace('q_', '')).innerText = e.target.value;
+            updateProgress();
+        });
+    });
+
+    document.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('change', updateProgress);
+    });
+
+    function updateProgress() {
+        const form = document.getElementById('assessment-form');
+        const reqs = form.querySelectorAll('input[required], select');
+        let completed = 0;
+        reqs.forEach(el => {
+            if (el.value !== '') completed++;
+        });
+        const pct = (completed / reqs.length) * 100;
+        document.getElementById('progress-bar').style.width = `${Math.min(pct, 100)}%`;
+    }
+
+    // Dynamic Live Bio-Metric BMI Matrix Calculation
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    const bmiDisplay = document.getElementById('bmi-display');
+
+    function calculateBMI() {
+        const h = parseFloat(heightInput.value) / 100;
+        const w = parseFloat(weightInput.value);
+        if (h > 0 && w > 0) {
+            const bmi = (w / (h * h)).toFixed(1);
+            let statusStr = "";
+            let colorCode = "";
+            
+            if (bmi < 18.5) { statusStr = i18n[currentLang].bmiUnder; colorCode = "var(--color-yellow)"; }
+            else if (bmi < 25) { statusStr = i18n[currentLang].bmiNorm; colorCode = "var(--color-green)"; }
+            else if (bmi < 30) { statusStr = i18n[currentLang].bmiOver; colorCode = "var(--color-orange)"; }
+            else { statusStr = i18n[currentLang].bmiObese; colorCode = "var(--color-red)"; }
+            
+            bmiDisplay.innerHTML = `BMI: <span style="color:${colorCode}">${bmi} (${statusStr})</span>`;
+            return parseFloat(bmi);
+        }
+        bmiDisplay.innerHTML = `BMI: --`;
+        return null;
+    }
+    heightInput.addEventListener('input', calculateBMI);
+    weightInput.addEventListener('input', calculateBMI);
+
+    // Premium Interaction Grid Item Card Selector (Single and Multi Arrays)
+    document.querySelectorAll('.selectable-card').forEach(card => {
+        card.addEventListener('click', function() {
+            if (this.classList.contains('multi-select')) {
+                if (this.id === 'prob-none') {
+                    if (!this.classList.contains('selected')) {
+                        document.querySelectorAll('#health-problems-grid .multi-select').forEach(c => c.classList.remove('selected'));
+                        this.classList.add('selected');
+                    } else {
+                        this.classList.remove('selected');
+                    }
+                } else {
+                    const fallbackNone = document.getElementById('prob-none');
+                    if(fallbackNone) fallbackNone.classList.remove('selected');
+                    this.classList.toggle('selected');
+                }
+            } 
+            else if (this.classList.contains('single-select')) {
+                const groupClass = Array.from(this.classList).find(c => c.startsWith('group-'));
+                document.querySelectorAll(`.${groupClass}`).forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                if(groupClass === 'group-sex') document.getElementById('sex').value = this.dataset.value;
+                if(groupClass === 'group-smoke') document.getElementById('q_smoke').value = this.dataset.value;
+                updateProgress();
+            }
+        });
+    });
+
+    // --- Core AI Matrix Scoring Engine ---
+    document.getElementById('assessment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if(!document.getElementById('sex').value || !document.getElementById('q_smoke').value) {
+            alert(i18n[currentLang].alertCards);
+            return;
+        }
+
+        document.getElementById('assessment-form').style.display = 'none';
+        document.getElementById('loading-screen').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+            processBiomarkers();
+        }, 1800);
+    });
+
+    function processBiomarkers() {
+        const chronoAge = parseInt(document.getElementById('age').value);
+        let delta = 0;
+        
+        const bmi = calculateBMI();
+        const sleepQual = parseInt(document.getElementById('q_sleep_qual').value);
+        const sleepHrs = parseFloat(document.getElementById('q_sleep_hrs').value);
+        const stress = parseInt(document.getElementById('q_stress').value);
+        const energy = parseInt(document.getElementById('q_energy').value);
+        const exercise = parseFloat(document.getElementById('q_exercise').value);
+        const foodQual = parseInt(document.getElementById('q_food_qual').value);
+        const water = parseFloat(document.getElementById('q_water').value);
+        const smoke = document.getElementById('q_smoke').value;
+        const feelAge = document.getElementById('q_feel_age').value;
+
+        // Dynamic multi pillar score calculation paths
+        let metabolicScore = 100;
+        if(bmi > 25 && bmi < 30) { delta += 1.2; metabolicScore -= 15; }
+        else if(bmi >= 30) { delta += 3.1; metabolicScore -= 35; }
+        else if(bmi < 18.5) { delta += 0.8; metabolicScore -= 10; }
+
+        let recoveryScore = (sleepQual * 5) + (sleepHrs >= 6.5 ? 50 : 20);
+        if(sleepQual < 4) delta += 1.8;
+        else if(sleepQual > 7) delta -= 1.2;
+        if(sleepHrs < 6) delta += 1.4;
+
+        let stressScore = 100 - (stress * 10);
+        if(stress > 7) delta += 2.4;
+        else if(stress < 4) delta -= 0.8;
+
+        if(exercise === 0) { delta += 2.5; metabolicScore -= 20; }
+        else if(exercise >= 3.5) { delta -= 2.1; metabolicScore += 10; }
+
+        if(foodQual < 4) delta += 1.9;
+        else if(foodQual > 7) delta -= 1.6;
+        if(water < 1) delta += 0.9;
+        
+        if(smoke === "Yes") { delta += 4.5; metabolicScore -= 25; recoveryScore -= 20;}
+        
+        if(feelAge === "older") delta += 1.2;
+        if(feelAge === "younger") delta -= 1.0;
+
+        let calculatedBioAge = chronoAge + delta;
+        if(calculatedBioAge < chronoAge - 12) calculatedBioAge = chronoAge - 12; // Safety cap
+        
+        let longevityScore = Math.round((metabolicScore * 0.35) + (recoveryScore * 0.35) + (stressScore * 0.3));
+        longevityScore = Math.max(5, Math.min(100, longevityScore));
+
+        // Save states for smooth real-time language toggling recalculation loops
+        storedScores = {
+            chronoAge, delta, calculatedBioAge, longevityScore,
+            metabolicScore, recoveryScore, stressScore, energy: (energy * 10),
+            sleepQual, sleepHrs, stress, foodQual, water, smoke, bmi
+        };
+
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+        
+        repaintResultsUI();
+    }
+
+    function repaintResultsUI() {
+        if(!storedScores) return;
+        const s = storedScores;
+
+        document.getElementById('res-bio-age').innerText = s.calculatedBioAge.toFixed(1);
+        document.getElementById('res-chron-age').innerText = `${i18n[currentLang].chronological}${s.chronoAge}`;
+        
+        let reportText = "";
+        if(s.calculatedBioAge < s.chronoAge) {
+            reportText = `${i18n[currentLang].congrats} <span style="color:var(--color-green)">${Math.abs(s.chronoAge - s.calculatedBioAge).toFixed(1)} ${i18n[currentLang].younger}</span>`;
+        } else if (s.calculatedBioAge > s.chronoAge) {
+            reportText = `${i18n[currentLang].warn} <span style="color:var(--color-red)">${Math.abs(s.calculatedBioAge - s.chronoAge).toFixed(1)} ${i18n[currentLang].older}</span>`;
+        } else {
+            reportText = i18n[currentLang].match;
+        }
+        document.getElementById('res-conclusion').innerHTML = reportText;
+
+        // Visual Risk bar updates mapping
+        let riskText = "", colorHex = "", widthPct = 0;
+        if(s.delta >= 3.5) { riskText = i18n[currentLang].riskHigh; colorHex = "var(--color-red)"; widthPct = 95; }
+        else if(s.delta > 0) { riskText = i18n[currentLang].riskMod; colorHex = "var(--color-orange)"; widthPct = 65; }
+        else if(s.delta > -2.5) { riskText = i18n[currentLang].riskGood; colorHex = "var(--color-yellow)"; widthPct = 35; }
+        else { riskText = i18n[currentLang].riskExc; colorHex = "var(--color-green)"; widthPct = 12; }
+
+        const rLabel = document.getElementById('res-risk');
+        rLabel.innerText = riskText;
+        rLabel.style.color = colorHex;
+        document.getElementById('risk-bar').style.backgroundColor = colorHex;
+        document.getElementById('risk-bar').style.width = widthPct + '%';
+
+        // Recommendation Arrays injection loops mapping lang configurations
+        const recList = document.getElementById('recommendations-list');
+        recList.innerHTML = "";
+        
+        const protocols = [];
+        if(s.sleepQual < 6 || s.sleepHrs < 6) protocols.push(i18n[currentLang].rec1);
+        if(s.stress > 6) protocols.push(i18n[currentLang].rec2);
+        if(s.exercise < 2) protocols.push(i18n[currentLang].rec3);
+        if(s.bmi >= 25) protocols.push(i18n[currentLang].rec4);
+        if(s.foodQual < 6) protocols.push(i18n[currentLang].rec5);
+        if(s.water < 2) protocols.push(i18n[currentLang].rec6);
+        if(s.smoke === "Yes") protocols.push(i18n[currentLang].rec7);
+        if(protocols.length === 0) protocols.push(i18n[currentLang].rec8);
+
+        protocols.slice(0, 4).forEach(text => {
+            const li = document.createElement('li');
+            li.innerHTML = text;
+            recList.appendChild(li);
+        });
+
+        updateCharts();
+    }
+
+    // --- Chart.js Visualization Interface ---
+    let mainDonutChart = null, mainRadarChart = null;
+
+    function updateCharts() {
+        if(!storedScores) return;
+        const s = storedScores;
+        const textHex = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim();
+        const gridHex = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+
+        // 1. Longevity Gauge Update
+        const ctxGauge = document.getElementById('longevityChart').getContext('2d');
+        if(mainDonutChart) mainDonutChart.destroy();
+        mainDonutChart = new Chart(ctxGauge, {
+            type: 'doughnut',
+            data: {
+                labels: ['Score', 'Gap'],
+                datasets: [{
+                    data: [s.longevityScore, 100 - s.longevityScore],
+                    backgroundColor: ['#0071e3', '#e5e5ea'],
+                    borderWidth: 0,
+                    cutout: '76%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            },
+            plugins: [{
+                id: 'centerTextText',
+                beforeDraw: function(chart) {
+                    let w = chart.width, h = chart.height, ctx = chart.ctx;
+                    ctx.restore();
+                    let fSize = (h / 110).toFixed(2);
+                    ctx.font = "bold " + fSize + "em Inter";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = textHex;
+                    let out = s.longevityScore + "%",
+                        textX = Math.round((w - ctx.measureText(out).width) / 2),
+                        textY = h / 2;
+                    ctx.fillText(out, textX, textY);
+                    ctx.save();
+                }
+            }]
+        });
+
+        // 2. Pillars Radar Updates
+        const ctxRadar = document.getElementById('pillarsChart').getContext('2d');
+        if(mainRadarChart) mainRadarChart.destroy();
+        mainRadarChart = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: [
+                    i18n[currentLang].p1,
+                    i18n[currentLang].p2,
+                    i18n[currentLang].p3,
+                    i18n[currentLang].p4,
+                    i18n[currentLang].p5
+                ],
+                datasets: [{
+                    data: [s.metabolicScore, s.recoveryScore, s.stressScore, s.energy, s.longevityScore],
+                    backgroundColor: 'rgba(0, 113, 227, 0.15)',
+                    borderColor: 'rgba(0, 113, 227, 1)',
+                    pointBackgroundColor: 'rgba(0, 113, 227, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: gridHex },
+                        grid: { color: gridHex },
+                        pointLabels: { color: textHex, font: { family: 'Inter', size: 11, weight: '500' } },
+                        ticks: { display: false, min: 0, max: 100 }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // Capture Canvas to PDF Module Export
+    function exportPDF() {
+        const target = document.getElementById('capture-area');
+        const config = {
+            margin:       0.5,
+            filename:     'PRYSM_Clinical_Longevity_Report.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(config).from(target).save();
+    }
+</script>
+</body>
+</html>
